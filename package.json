@@ -5,14 +5,22 @@
   "author": "Tsuyoshi Maeda <oasis5tsuyoshi@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "chalk": "^2.4.2",
+    "express": "^4.17.1",
     "pg": "^7.12.1",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.21.2",
     "sequelize-cli": "^5.5.1"
   },
+  "devDependencies": {
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.4"
+  },
   "description": "This repository is for [this meetup event](https://www.meetup.com/ja-JP/CodeChrysalis/events/245248864/).",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=development nodemon src/index.js"
   },
   "repository": {
     "type": "git",
