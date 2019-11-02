@@ -1,13 +1,29 @@
 'use strict'
 
+const db = require('../db/models/');
+
+const formatResponseData = (data) => ({ data });
+
 const statusCode = {
     OK: 200,
-    BAT: 400
+    BAD: 400
 };
 
 module.exports = {
-    getTodos: (req, res) => {
-        send(res, statusCode.OK, 'getTodos', false);
+    async getTodos(req, res) {
+        try {
+            const todos = await Todo.findAll({
+                order: [
+                    ['id', 'ASC']
+                ],
+                raw: true
+            });
+            res.status(200).json(formatResponseData(todos));
+        } catch (err) {
+            res.status(err.statusCode).json({
+                error: err
+            });
+        }
     },
     postTodo: (req, res) => {
         send(res, statusCode.OK, 'postTodo', false);

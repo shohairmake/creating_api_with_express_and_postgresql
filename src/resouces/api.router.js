@@ -7,7 +7,7 @@ router
     .get(controller.getTodos)
     .post(controller.postTodo);
 router
-    .route('todos/:id')
+    .route('/todos/:id')
     .put(controller.putTodo)
     .delete(controller.deleteTodo);
 
