@@ -6,7 +6,7 @@ const formatResponseData = (data) => ({ data });
 
 const statusCode = {
     OK: 200,
-    BAD: 400
+    BAD_REQUEST: 400
 };
 
 module.exports = {
