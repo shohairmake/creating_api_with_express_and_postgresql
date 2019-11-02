@@ -90,6 +90,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# bulk file
+config/config.js.bulk
 
 ### Vim ###
 # swap
