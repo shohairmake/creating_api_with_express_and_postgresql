@@ -20,7 +20,7 @@ module.exports = {
             });
             res.status(200).json(formatResponseData(todos));
         } catch (err) {
-            res.status(400).json({
+            res.status(err.statusCode).json({
                 error: err
             });
         }
