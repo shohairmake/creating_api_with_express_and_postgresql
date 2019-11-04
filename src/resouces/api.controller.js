@@ -1,6 +1,6 @@
 'use strict'
 
-const db = require('../db/models/');
+const Todo = require('../db/models/index').todo;
 
 const formatResponseData = (data) => ({ data });
 
@@ -10,7 +10,7 @@ const statusCode = {
 };
 
 module.exports = {
-    async getTodos(req, res) {
+    getTodos: async (req, res) => {
         try {
             const todos = await Todo.findAll({
                 order: [
