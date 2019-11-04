@@ -2,7 +2,7 @@
 
 const Todo = require('../db/models/index').todo;
 
-const formatResponseData = data => ({ data });
+const formatResponseData = (data) => ({ data });
 
 const statusCode = {
     OK: 200,
