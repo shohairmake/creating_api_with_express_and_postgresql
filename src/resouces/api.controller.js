@@ -1,8 +1,8 @@
 'use strict'
 
-const db = require('../db/models/');
+const Todo = require('../db/models/index').todo;
 
-const formatResponseData = (data) => ({ data });
+const formatResponseData = data => ({ data });
 
 const statusCode = {
     OK: 200,
@@ -10,7 +10,7 @@ const statusCode = {
 };
 
 module.exports = {
-    async getTodos(req, res) {
+    getTodos: async (req, res) => {
         try {
             const todos = await Todo.findAll({
                 order: [
@@ -20,7 +20,7 @@ module.exports = {
             });
             res.status(200).json(formatResponseData(todos));
         } catch (err) {
-            res.status(err.statusCode).json({
+            res.status(400).json({
                 error: err
             });
         }
