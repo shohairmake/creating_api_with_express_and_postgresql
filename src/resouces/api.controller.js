@@ -20,32 +20,27 @@ module.exports = {
             });
             res.status(200).json(formatResponseData(todos));
         } catch (err) {
-            res.status(err.statusCode).json({
-                error: err
-            });
+            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
         }
     },
-    postTodo: async (req, res, next) => {
+    postTodo: async (req, res) => {
+        let transaction;
         try {
-            const dataValues = await sequelize.transaction(
-                async transaction => {
-                    const { title, body, completed = false } = req.body;
-                    return await todo.create(
-                        {
-                            title,
-                            body,
-                            completed,
-                        },
-                        { transaction }
-                    );
-                }
+            transaction = await sequelize.transaction();
+            const { title, body, completed = false } = req.body;
+            const dataValues = await todo.create(
+                {
+                    title,
+                    body,
+                    completed,
+                },
+                { transaction }
             );
-            //トランザクション処理の終了を明記しなくても良いのか？ataValuesで終了できてるのか？
-            //例 await transaction.commit();
+            await transaction.commit();
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
-            res.status(err.statusCode).json({ error: err });
-            next(err);
+            await transaction.rollback();
+            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
         }
     },
     putTodo: (req, res) => {

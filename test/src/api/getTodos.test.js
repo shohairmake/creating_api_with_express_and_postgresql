@@ -1,8 +1,9 @@
 const assert = require('power-assert');
 const { todo, sequelize } = require('../../../src/db/models');
 const requestHelper = require('../../helper/requestHelper');
+const chalk = require('chalk');
 
-describe('test_GET_/api/todos', () => {
+describe(chalk.green('test_GET_/api/todos'), () => {
     before(async () => {
         const promises = [];
         for (let i = 0; i < 5; i++) {
@@ -17,7 +18,6 @@ describe('test_GET_/api/todos', () => {
     });
     after(async () => {
         await sequelize.truncate();
-        await sequelize.close();
     });
     //test of response 200
     it('test of response 200', async () => {

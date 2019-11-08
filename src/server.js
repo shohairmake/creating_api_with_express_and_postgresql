@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const router = require('./resouces/api.router');
 
 app.use(express.json());
-app.use(bodyParser.json());
 app.use(cors());
 //cors default settings is like this
 //    {"origin": "*",
