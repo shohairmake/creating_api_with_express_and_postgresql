@@ -73,7 +73,34 @@ module.exports = {
         }
     },
     putTodo: async (req, res) => {
-        send(res, statusCode.OK, 'putTodo', false);
+        const targetTodoId = req.params.id;
+        let transaction;
+        try {
+            const targetTodo = await todo.findByPk(targetTodoId).catch(
+                err => {
+                    throwError("Server Error", 500);
+                }
+            );
+            if (!targetTodo) {
+                throwError("Not Found", 404);
+            }
+            transaction = await sequelize.transaction();
+            const { title, body, completed = false } = req.body;
+            const dataValues = await targetTodo.update(
+                {
+                    title,
+                    body,
+                    completed,
+                },
+                { transaction }
+            ).catch(err => {
+                throwError("Server Error", 500);
+            });
+            await transaction.commit();
+            res.status(200).json(formatResponseData(dataValues));
+        } catch (err) {
+            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
+        }
     },
     deleteTodo: (req, res) => {
         send(res, statusCode.OK, 'deleteTodo', false);
