@@ -1,6 +1,6 @@
 'use strict'
 
-const Todo = require('../db/models/index').todo;
+const { todo, sequelize } = require('../db/models/index');
 
 const formatResponseData = (data) => ({ data });
 
@@ -12,7 +12,7 @@ const statusCode = {
 module.exports = {
     getTodos: async (req, res) => {
         try {
-            const todos = await Todo.findAll({
+            const todos = await todo.findAll({
                 order: [
                     ['id', 'ASC']
                 ],
@@ -20,13 +20,28 @@ module.exports = {
             });
             res.status(200).json(formatResponseData(todos));
         } catch (err) {
-            res.status(err.statusCode).json({
-                error: err
-            });
+            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
         }
     },
-    postTodo: (req, res) => {
-        send(res, statusCode.OK, 'postTodo', false);
+    postTodo: async (req, res) => {
+        let transaction;
+        try {
+            transaction = await sequelize.transaction();
+            const { title, body, completed = false } = req.body;
+            const dataValues = await todo.create(
+                {
+                    title,
+                    body,
+                    completed,
+                },
+                { transaction }
+            );
+            await transaction.commit();
+            res.status(200).json(formatResponseData(dataValues));
+        } catch (err) {
+            await transaction.rollback();
+            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
+        }
     },
     putTodo: (req, res) => {
         send(res, statusCode.OK, 'putTodo', false);
