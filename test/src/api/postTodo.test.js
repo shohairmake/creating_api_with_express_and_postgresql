@@ -55,7 +55,7 @@ describe(chalk.green('test_POST_/api/todos'), () => {
             endPoint: '/api/todos',
             statusCode: 400
         }).send(failData);
-        assert.strictEqual(response.body.error, 'null value in column "title" violates not-null constraint');
+        assert.strictEqual(response.body.error, 'Server Error');
     });
     it('400 error if body is missing', async () => {
         const failData = {
@@ -66,6 +66,6 @@ describe(chalk.green('test_POST_/api/todos'), () => {
             endPoint: '/api/todos',
             statusCode: 400
         }).send(failData);
-        assert.strictEqual(response.body.error, 'null value in column "body" violates not-null constraint');
+        assert.strictEqual(response.body.error, 'Server Error');
     });
 });
