@@ -8,7 +8,6 @@ router
     .post(controller.postTodo);
 router
     .route('/todos/:id')
-    .get(controller.getTodoById)
     .put(controller.putTodo)
     .delete(controller.deleteTodo);
 

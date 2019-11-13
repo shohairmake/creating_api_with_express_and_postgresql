@@ -65,13 +65,15 @@ describe(chalk.green('test_PUT_/api/todos'), () => {
     });
 
     it('error if ID is invalid', async () => {
-        const INVALID_ID = 999999999999;
+        const initTodos = await getTodos();
+        const INVALID_ID = initTodos[4].id + 1;
+        console.log(INVALID_ID);
         const response = await requestHelper.request({
             method: 'put',
             endPoint: `/api/todos/${INVALID_ID}`,
-            statusCode: 400
+            statusCode: 404
         }).send(testData);
 
-        assert.deepStrictEqual(response.body.error, 'Server Error');
+        assert.deepStrictEqual(response.body.error.message, `Could not find a ID:${INVALID_ID}`);
     });
 });
