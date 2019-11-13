@@ -4,13 +4,12 @@ const { todo, sequelize } = require('../db/models/index');
 
 const formatResponseData = (data) => ({ data });
 
-const statusCode = {
-    OK: 200,
-    BAD_REQUEST: 400
+const DB_ERROR_TYPES = {
+    NOT_NULL: '23502'
 };
 
 module.exports = {
-    getTodos: async (req, res) => {
+    getTodos: async (req, res, next) => {
         try {
             const todos = await todo.findAll({
                 order: [
@@ -20,10 +19,10 @@ module.exports = {
             });
             res.status(200).json(formatResponseData(todos));
         } catch (err) {
-            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
+            next(err);
         }
     },
-    postTodo: async (req, res) => {
+    postTodo: async (req, res, next) => {
         let transaction;
         try {
             transaction = await sequelize.transaction();
@@ -40,14 +39,41 @@ module.exports = {
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
             await transaction.rollback();
-            res.status(statusCode.BAD_REQUEST).json({ error: err.message });
+            if (err.parent.code === DB_ERROR_TYPES.NOT_NULL) {
+                //非NULL違反だった時にエラーコードをセット
+                err.status = 400;
+            }
+            next(err);
         }
     },
-    putTodo: (req, res) => {
-        send(res, statusCode.OK, 'putTodo', false);
+    putTodo: async (req, res, next) => {
+        const targetTodoId = req.params.id;
+        let transaction;
+        try {
+            const targetTodo = await todo.findByPk(targetTodoId);
+            if (!targetTodo) {
+                const err = new Error(`Could not find a ID:${targetTodoId}`)
+                err.status = 404;
+                return next(err);
+            }
+            transaction = await sequelize.transaction();
+            const { title, body, completed = false } = req.body;
+            const dataValues = await targetTodo.update(
+                {
+                    title,
+                    body,
+                    completed,
+                },
+                { transaction }
+            );
+            await transaction.commit();
+            res.status(200).json(formatResponseData(dataValues));
+        } catch (err) {
+            next(err);
+        }
     },
     deleteTodo: (req, res) => {
-        send(res, statusCode.OK, 'deleteTodo', false);
+        send(res, 200, 'deleteTodo', false);
     }
 };
 
