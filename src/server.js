@@ -16,7 +16,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', router);
 
 app.use((err, req, res, next) => {
-    console.log('midlewear');
     return res.status(err.status || 500).json({
         error: {
             message: err.message || 'oops! something went wrong!',

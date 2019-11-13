@@ -4,6 +4,10 @@ const { todo, sequelize } = require('../db/models/index');
 
 const formatResponseData = (data) => ({ data });
 
+const DB_ERROR_TYPES = {
+    NOT_NULL: '23502'
+};
+
 module.exports = {
     getTodos: async (req, res, next) => {
         try {
@@ -35,9 +39,9 @@ module.exports = {
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
             await transaction.rollback();
-            if (err.parent.code === '23502') {
+            if (err.parent.code === DB_ERROR_TYPES.NOT_NULL) {
                 //非NULL違反だった時にエラーコードをセット
-                err.status = 400
+                err.status = 400;
             }
             next(err);
         }
