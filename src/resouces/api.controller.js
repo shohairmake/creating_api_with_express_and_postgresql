@@ -8,6 +8,12 @@ const DB_ERROR_TYPES = {
     NOT_NULL: '23502'
 };
 
+const setError = (message, code, next) => {
+    const err = new Error(message)
+    err.status = code;
+    return next(err);
+}
+
 module.exports = {
     getTodos: async (req, res, next) => {
         try {
@@ -46,15 +52,25 @@ module.exports = {
             next(err);
         }
     },
+    getTodoById: async (req, res, next) => {
+        const targetTodoId = req.params.id;
+        try {
+            const targetTodo = await todo.findByPk(targetTodoId);
+            if (!targetTodo) {
+                return setError(`Could not find a ID:${targetTodoId}`, 404, next);
+            }
+            res.status(200).json(formatResponseData(targetTodo));
+        } catch (err) {
+            next(err);
+        }
+    },
     putTodo: async (req, res, next) => {
         const targetTodoId = req.params.id;
         let transaction;
         try {
             const targetTodo = await todo.findByPk(targetTodoId);
             if (!targetTodo) {
-                const err = new Error(`Could not find a ID:${targetTodoId}`)
-                err.status = 404;
-                return next(err);
+                return setError(`Could not find a ID:${targetTodoId}`, 404, next);
             }
             transaction = await sequelize.transaction();
             const { title, body, completed = false } = req.body;
