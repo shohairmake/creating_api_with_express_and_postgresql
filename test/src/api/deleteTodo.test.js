@@ -11,13 +11,8 @@ const getTodos = async () => {
     });
     return response.body.data;
 };
-const testData = {
-    title: 'put_test title',
-    body: 'put_test body',
-    completed: true
-};
 
-describe(chalk.green('test_PUT_/api/todos'), () => {
+describe(chalk.green('test_DELETE_/api/todos'), () => {
     before(async () => {
         const promises = [];
         for (let i = 0; i < 5; i++) {
@@ -38,41 +33,44 @@ describe(chalk.green('test_PUT_/api/todos'), () => {
         const initTodos = await getTodos();
         assert.strictEqual(initTodos.length, 5);
 
-        const updateId = initTodos[0].id;
+        const deleteId = initTodos[0].id;
         const response = await requestHelper.request({
-            method: 'put',
-            endPoint: `/api/todos/${updateId}`,
+            method: 'delete',
+            endPoint: `/api/todos/${deleteId}`,
             statusCode: 200
-        }).send(testData);
-        const updatedTodo = response.body.data;
-        assert.strictEqual(typeof updatedTodo, 'object');
-        assert.strictEqual(typeof updatedTodo.id, 'number');
-        assert.strictEqual(typeof updatedTodo.title, 'string');
-        assert.strictEqual(typeof updatedTodo.body, 'string');
-        assert.strictEqual(typeof updatedTodo.completed, 'boolean');
-        assert.strictEqual(typeof updatedTodo.createdAt, 'string');
-        assert.strictEqual(typeof updatedTodo.updatedAt, 'string');
-
-        assert.deepStrictEqual({ ...updatedTodo }, {
-            id: updatedTodo.id,
-            title: testData.title,
-            body: testData.body,
-            completed: testData.completed,
-            createdAt: updatedTodo.createdAt,
-            updatedAt: updatedTodo.updatedAt
         });
-        assert.strictEqual(updatedTodo.createdAt < updatedTodo.updatedAt, true);
+        const deletedTodo = response.body.data;
+        assert.strictEqual(typeof deletedTodo, 'object');
+        assert.strictEqual(typeof deletedTodo.id, 'number');
+        assert.strictEqual(typeof deletedTodo.title, 'string');
+        assert.strictEqual(typeof deletedTodo.body, 'string');
+        assert.strictEqual(typeof deletedTodo.completed, 'boolean');
+        assert.strictEqual(typeof deletedTodo.createdAt, 'string');
+        assert.strictEqual(typeof deletedTodo.updatedAt, 'string');
+
+        assert.deepStrictEqual({ ...deletedTodo }, {
+            id: deletedTodo.id,
+            title: deletedTodo.title,
+            body: deletedTodo.body,
+            completed: deletedTodo.completed,
+            createdAt: deletedTodo.createdAt,
+            updatedAt: deletedTodo.updatedAt
+        });
+        await requestHelper.request({
+            method: 'get',
+            endPoint: `/api/todos/${deleteId}`,
+            statusCode: 404
+        });
     });
 
     it('error if ID is invalid', async () => {
         const initTodos = await getTodos();
-        const INVALID_ID = initTodos[4].id + 1;
+        const INVALID_ID = initTodos[3].id + 1;
         const response = await requestHelper.request({
-            method: 'put',
+            method: 'delete',
             endPoint: `/api/todos/${INVALID_ID}`,
             statusCode: 404
-        }).send(testData);
-
+        });
         assert.deepStrictEqual(response.body.error.message, `Could not find a ID:${INVALID_ID}`);
     });
 });
