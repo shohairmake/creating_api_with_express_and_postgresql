@@ -86,7 +86,7 @@ module.exports = {
             await transaction.commit();
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
-            if (!err.code === DB_ERROR_TYPES.OUT_OF_RANGE_VALUE) {
+            if (transaction) {
                 await transaction.rollback();
             }
             next(err);
@@ -105,7 +105,7 @@ module.exports = {
             await transaction.commit();
             res.status(200).json(formatResponseData(targetTodo));
         } catch (err) {
-            if (!err.code === DB_ERROR_TYPES.OUT_OF_RANGE_VALUE) {
+            if (transaction) {
                 await transaction.rollback();
             }
             next(err);
