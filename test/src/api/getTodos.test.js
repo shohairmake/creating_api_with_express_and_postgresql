@@ -7,11 +7,11 @@ describe(chalk.green('test_GET_/api/todos'), () => {
     before(async () => {
         const promises = [];
         for (let i = 0; i < 5; i++) {
-            const insertTodo = {
+            const todoData = {
                 title: 'test title' + i,
                 body: 'test body' + i
             };
-            const promise = todo.create(insertTodo);
+            const promise = todo.create(todoData);
             promises.push(promise);
         }
         await Promise.all(promises);

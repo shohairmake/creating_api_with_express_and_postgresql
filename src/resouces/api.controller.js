@@ -5,7 +5,8 @@ const { todo, sequelize } = require('../db/models/index');
 const formatResponseData = (data) => ({ data });
 
 const DB_ERROR_TYPES = {
-    NOT_NULL: '23502'
+    NOT_NULL: '23502',
+    OUT_OF_RANGE_VALUE: '22003'
 };
 
 const setError = (message, code, next) => {
@@ -85,14 +86,29 @@ module.exports = {
             await transaction.commit();
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
+            if (transaction) {
+                await transaction.rollback();
+            }
             next(err);
         }
     },
-    deleteTodo: (req, res) => {
-        send(res, 200, 'deleteTodo', false);
+    deleteTodo: async (req, res, next) => {
+        const targetTodoId = req.params.id;
+        let transaction;
+        try {
+            const targetTodo = await todo.findByPk(targetTodoId);
+            if (!targetTodo) {
+                return setError(`Could not find a ID:${targetTodoId}`, 404, next);
+            }
+            transaction = await sequelize.transaction();
+            await targetTodo.destroy({ transaction });
+            await transaction.commit();
+            res.status(200).json(formatResponseData(targetTodo));
+        } catch (err) {
+            if (transaction) {
+                await transaction.rollback();
+            }
+            next(err);
+        }
     }
 };
-
-const send = (res, status, data, json = true) => {
-    res.status(status).send(json ? JSON.stringify(data) : data);
-}; 
