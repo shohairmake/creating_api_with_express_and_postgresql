@@ -5,7 +5,8 @@ const { todo, sequelize } = require('../db/models/index');
 const formatResponseData = (data) => ({ data });
 
 const DB_ERROR_TYPES = {
-    NOT_NULL: '23502'
+    NOT_NULL: '23502',
+    OUT_OF_RANGE_VALUE: '22003'
 };
 
 const setError = (message, code, next) => {
@@ -68,11 +69,11 @@ module.exports = {
         const targetTodoId = req.params.id;
         let transaction;
         try {
-            transaction = await sequelize.transaction();
             const targetTodo = await todo.findByPk(targetTodoId);
             if (!targetTodo) {
                 return setError(`Could not find a ID:${targetTodoId}`, 404, next);
             }
+            transaction = await sequelize.transaction();
             const { title, body, completed = false } = req.body;
             const dataValues = await targetTodo.update(
                 {
@@ -85,7 +86,9 @@ module.exports = {
             await transaction.commit();
             res.status(200).json(formatResponseData(dataValues));
         } catch (err) {
-            await transaction.rollback();
+            if (!err.code === DB_ERROR_TYPES.OUT_OF_RANGE_VALUE) {
+                await transaction.rollback();
+            }
             next(err);
         }
     },
@@ -93,16 +96,18 @@ module.exports = {
         const targetTodoId = req.params.id;
         let transaction;
         try {
-            transaction = await sequelize.transaction();
             const targetTodo = await todo.findByPk(targetTodoId);
             if (!targetTodo) {
                 return setError(`Could not find a ID:${targetTodoId}`, 404, next);
             }
+            transaction = await sequelize.transaction();
             await targetTodo.destroy({ transaction });
             await transaction.commit();
             res.status(200).json(formatResponseData(targetTodo));
         } catch (err) {
-            await transaction.rollback();
+            if (!err.code === DB_ERROR_TYPES.OUT_OF_RANGE_VALUE) {
+                await transaction.rollback();
+            }
             next(err);
         }
     }
