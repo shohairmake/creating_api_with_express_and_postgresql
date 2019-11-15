@@ -5,8 +5,7 @@ const { todo, sequelize } = require('../db/models/index');
 const formatResponseData = (data) => ({ data });
 
 const DB_ERROR_TYPES = {
-    NOT_NULL: '23502',
-    OUT_OF_RANGE_VALUE: '22003'
+    NOT_NULL: '23502'
 };
 
 const setError = (message, code, next) => {
