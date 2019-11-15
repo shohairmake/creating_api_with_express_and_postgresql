@@ -90,7 +90,6 @@ typings/
 # dotenv environment variables file
 .env
 
-
 ### Vim ###
 # swap
 [._]*.s[a-v][a-z]
